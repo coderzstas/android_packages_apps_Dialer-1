@@ -107,6 +107,7 @@ import java.lang.ref.WeakReference;
  */
 public final class CallLogListItemViewHolder extends RecyclerView.ViewHolder
     implements View.OnClickListener,
+        View.OnLongClickListener,
         MenuItem.OnMenuItemClickListener,
         View.OnCreateContextMenuListener {
 
@@ -307,6 +308,7 @@ public final class CallLogListItemViewHolder extends RecyclerView.ViewHolder
     quickContactView.setOverlay(null);
     quickContactView.setPrioritizedMimeType(Phone.CONTENT_ITEM_TYPE);
     primaryActionButtonView.setOnClickListener(this);
+    primaryActionButtonView.setOnLongClickListener(this);
     primaryActionView.setOnClickListener(this.expandCollapseListener);
     if (this.voicemailPlaybackPresenter != null
         && ConfigProviderComponent.get(this.context)
@@ -522,6 +524,7 @@ public final class CallLogListItemViewHolder extends RecyclerView.ViewHolder
         primaryActionButtonView.setContentDescription(
             TextUtils.expandTemplate(
                 context.getString(R.string.description_voicemail_action), validNameOrNumber));
+        primaryActionButtonView.setTag(null);
         primaryActionButtonView.setVisibility(View.VISIBLE);
       } else {
         primaryActionButtonView.setVisibility(View.GONE);
@@ -1074,7 +1077,8 @@ public final class CallLogListItemViewHolder extends RecyclerView.ViewHolder
       return;
     }
     intentProvider.logInteraction(context);
-    final Intent intent = intentProvider.getIntent(context);
+
+    final Intent intent = intentProvider.getClickIntent(context);
     // See IntentProvider.getCallDetailIntentProvider() for why this may be null.
     if (intent == null) {
       return;
@@ -1092,6 +1096,18 @@ public final class CallLogListItemViewHolder extends RecyclerView.ViewHolder
 
       DialerUtils.startActivityWithErrorToast(context, intent);
     }
+  }
+
+  @Override
+  public boolean onLongClick(View view) {
+    final IntentProvider intentProvider = (IntentProvider) view.getTag();
+    final Intent intent = intentProvider != null
+        ? intentProvider.getLongClickIntent(context) : null;
+    if (intent != null) {
+      DialerUtils.startActivityWithErrorToast(context, intent);
+      return true;
+    }
+    return false;
   }
 
   private static boolean isNonContactEntry(ContactInfo info) {
