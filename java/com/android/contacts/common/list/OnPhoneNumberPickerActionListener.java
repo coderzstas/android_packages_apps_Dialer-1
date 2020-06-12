@@ -30,7 +30,7 @@ public interface OnPhoneNumberPickerActionListener {
    * either as an audio or video call.
    */
   void onPickPhoneNumber(
-      String phoneNumber, boolean isVideoCall, CallSpecificAppData callSpecificAppData);
+      String phoneNumber, boolean isVideoCall, CallSpecificAppData callSpecificAppData, String lookupKey);
 
   /** Called when home menu in {@link ActionBar} is clicked by the user. */
   void onHomeInActionBarSelected();
