@@ -17,7 +17,7 @@
 
 <resources>
   <style name="Theme.InCallScreen" parent="@style/Dialer.ThemeBase.NoActionBar">
-    <item name="android:statusBarColor">@android:color/transparent</item>
+    <item name="android:statusBarColor">@android:color/incall_header_background</item>
     <item name="android:navigationBarColor">@android:color/transparent</item>
     <item name="android:windowDrawsSystemBarBackgrounds">true</item>
 
