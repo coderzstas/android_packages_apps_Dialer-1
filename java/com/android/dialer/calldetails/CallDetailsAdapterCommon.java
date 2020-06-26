@@ -32,7 +32,6 @@ import com.android.dialer.calldetails.CallDetailsHeaderViewHolder.CallDetailsHea
 import com.android.dialer.calllogutils.CallTypeHelper;
 import com.android.dialer.calllogutils.CallbackActionHelper;
 import com.android.dialer.calllogutils.CallbackActionHelper.CallbackAction;
-import com.android.dialer.callrecord.CallRecordingDataStore;
 import com.android.dialer.common.Assert;
 import com.android.dialer.duo.DuoComponent;
 import com.android.dialer.glidephotomanager.PhotoInfo;
@@ -52,7 +51,6 @@ abstract class CallDetailsAdapterCommon extends RecyclerView.Adapter<RecyclerVie
   private final ReportCallIdListener reportCallIdListener;
   private final DeleteCallDetailsListener deleteCallDetailsListener;
   private final CallTypeHelper callTypeHelper;
-  private final CallRecordingDataStore callRecordingDataStore;
 
   private CallDetailsEntries callDetailsEntries;
 
@@ -77,14 +75,12 @@ abstract class CallDetailsAdapterCommon extends RecyclerView.Adapter<RecyclerVie
       CallDetailsEntryListener callDetailsEntryListener,
       CallDetailsHeaderListener callDetailsHeaderListener,
       ReportCallIdListener reportCallIdListener,
-      DeleteCallDetailsListener deleteCallDetailsListener,
-      CallRecordingDataStore callRecordingDataStore) {
+      DeleteCallDetailsListener deleteCallDetailsListener) {
     this.callDetailsEntries = callDetailsEntries;
     this.callDetailsEntryListener = callDetailsEntryListener;
     this.callDetailsHeaderListener = callDetailsHeaderListener;
     this.reportCallIdListener = reportCallIdListener;
     this.deleteCallDetailsListener = deleteCallDetailsListener;
-    this.callRecordingDataStore = callRecordingDataStore;
     this.callTypeHelper =
         new CallTypeHelper(context.getResources(), DuoComponent.get(context).getDuo());
   }
@@ -127,7 +123,6 @@ abstract class CallDetailsAdapterCommon extends RecyclerView.Adapter<RecyclerVie
           getPhotoInfo(),
           entry,
           callTypeHelper,
-          callRecordingDataStore,
           !entry.getHistoryResultsList().isEmpty() && position != getItemCount() - 2);
     }
   }

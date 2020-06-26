@@ -9,6 +9,7 @@
 #      $ protoc --plugin=protoc-gen-grpc-java=prebuilts/tools/common/m2/repository/io/grpc/protoc-gen-grpc-java/1.0.3/protoc-gen-grpc-java-1.0.3-linux-x86_64.exe \
 #               --grpc-java_out=lite:"packages/apps/Dialer/java/com/android/voicemail/impl/" \
 #               --proto_path="packages/apps/Dialer/java/com/android/voicemail/impl/transcribe/grpc/" "packages/apps/Dialer/java/com/android/voicemail/impl/transcribe/grpc/voicemail_transcription.proto"
+ifneq ($(TARGET_HAS_LOW_RAM),true)
 LOCAL_PATH:= $(call my-dir)
 include $(CLEAR_VARS)
 
@@ -79,7 +80,7 @@ LOCAL_SRC_FILES += $(call all-proto-files-under, $(BASE_DIR))
 LOCAL_SRC_FILES += $(call all-Iaidl-files-under, $(BASE_DIR))
 LOCAL_SRC_FILES := $(filter-out $(EXCLUDE_FILES),$(LOCAL_SRC_FILES))
 
-LOCAL_AIDL_INCLUDES := $(LOCAL_PATH)/java
+LOCAL_AIDL_INCLUDES := $(call all-Iaidl-files-under, $(BASE_DIR))
 
 LOCAL_PROTOC_FLAGS := --proto_path=$(LOCAL_PATH)
 
@@ -133,7 +134,6 @@ LOCAL_STATIC_JAVA_LIBRARIES := \
 	libbackup \
 	libphonenumber \
 	volley \
-	org.lineageos.platform.internal
 
 LOCAL_STATIC_ANDROID_LIBRARIES := \
 	android-support-core-ui \
@@ -171,26 +171,16 @@ LOCAL_PROGUARD_ENABLED := custom
 
 LOCAL_PROGUARD_ENABLED += optimization
 
+LOCAL_SDK_VERSION := system_current
 LOCAL_MODULE_TAGS := optional
 LOCAL_PACKAGE_NAME := Dialer
 LOCAL_CERTIFICATE := shared
 LOCAL_PRIVILEGED_MODULE := true
 LOCAL_PRODUCT_MODULE := true
-LOCAL_PRIVATE_PLATFORM_APIS := true
 LOCAL_USE_AAPT2 := true
 LOCAL_REQUIRED_MODULES := privapp_whitelist_com.android.dialer
-LOCAL_REQUIRED_MODULES += privapp_whitelist_com.android.dialer-ext.xml
 
 include $(BUILD_PACKAGE)
-
-include $(CLEAR_VARS)
-LOCAL_MODULE := privapp_whitelist_com.android.dialer-ext.xml
-LOCAL_MODULE_CLASS := ETC
-LOCAL_MODULE_TAGS := optional
-LOCAL_MODULE_PATH := $(TARGET_OUT_PRODUCT_ETC)/permissions
-LOCAL_PRODUCT_MODULE := true
-LOCAL_SRC_FILES := $(LOCAL_MODULE)
-include $(BUILD_PREBUILT)
 
 # Cleanup local state
 BASE_DIR :=
@@ -505,3 +495,4 @@ LOCAL_JAVA_LANGUAGE_VERSION := 1.8
 include $(BUILD_HOST_JAVA_LIBRARY)
 
 include $(CLEAR_VARS)
+endif #TARGET_HAS_LOW_RAM

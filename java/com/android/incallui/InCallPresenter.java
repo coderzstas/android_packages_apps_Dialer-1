@@ -127,8 +127,6 @@ public class InCallPresenter implements CallList.Listener, AudioModeProvider.Aud
 
   private StatusBarNotifier statusBarNotifier;
   private ExternalCallNotifier externalCallNotifier;
-  private InCallVibrationHandler vibrationHandler;
-  private InCallDndHandler dndHandler;
   private ContactInfoCache contactInfoCache;
   private Context context;
   private final OnCheckBlockedListener onCheckBlockedListener =
@@ -275,9 +273,6 @@ public class InCallPresenter implements CallList.Listener, AudioModeProvider.Aud
 
   private SpeakEasyCallManager speakEasyCallManager;
 
-  private boolean addCallClicked = false;
-  private boolean automaticallyMutedByAddCall = false;
-
   /** Inaccessible constructor. Must use getRunningInstance() to get this singleton. */
   @VisibleForTesting
   InCallPresenter() {}
@@ -365,12 +360,6 @@ public class InCallPresenter implements CallList.Listener, AudioModeProvider.Aud
     EnrichedCallComponent.get(this.context)
         .getEnrichedCallManager()
         .registerStateChangedListener(this.statusBarNotifier);
-
-    vibrationHandler = new InCallVibrationHandler(context);
-    addListener(vibrationHandler);
-
-    dndHandler = new InCallDndHandler(context);
-    addListener(dndHandler);
 
     this.proximitySensor = proximitySensor;
     addListener(this.proximitySensor);
@@ -1237,9 +1226,7 @@ public class InCallPresenter implements CallList.Listener, AudioModeProvider.Aud
       proximitySensor.onInCallShowing(showing);
     }
 
-    if (showing) {
-      refreshMuteState();
-    } else {
+    if (!showing) {
       updateIsChangingConfigurations();
     }
 
@@ -1661,16 +1648,6 @@ public class InCallPresenter implements CallList.Listener, AudioModeProvider.Aud
       }
       statusBarNotifier = null;
 
-      if (vibrationHandler != null) {
-        removeListener(vibrationHandler);
-      }
-      vibrationHandler = null;
-
-      if (dndHandler != null) {
-        removeListener(dndHandler);
-      }
-      dndHandler = null;
-
       if (callList != null) {
         callList.removeListener(this);
         callList.removeListener(spamCallListListener);
@@ -2054,39 +2031,6 @@ public class InCallPresenter implements CallList.Listener, AudioModeProvider.Aud
       LogUtil.i("InCallPresenter.isInCallUiLocked", "still locked by %s", lock);
     }
     return true;
-  }
-
-  public void addCallClicked() {
-    if (addCallClicked) {
-      // Since clicking add call button brings user to MainActivity and coming back refreshes mute
-      // state, add call button should only be clicked once during InCallActivity shows.
-      return;
-    }
-    addCallClicked = true;
-    if (!AudioModeProvider.getInstance().getAudioState().isMuted()) {
-      // Automatically mute the current call
-      TelecomAdapter.getInstance().mute(true);
-      automaticallyMutedByAddCall = true;
-    }
-    TelecomAdapter.getInstance().addCall();
-  }
-
-  /** Refresh mute state after call UI resuming from add call screen. */
-  public void refreshMuteState() {
-    LogUtil.i(
-        "InCallPresenter.refreshMuteState",
-        "refreshMuteStateAfterAddCall: %b addCallClicked: %b",
-        automaticallyMutedByAddCall,
-        addCallClicked);
-    if (!addCallClicked) {
-      return;
-    }
-    if (automaticallyMutedByAddCall) {
-      // Restore the previous mute state
-      TelecomAdapter.getInstance().mute(false);
-      automaticallyMutedByAddCall = false;
-    }
-    addCallClicked = false;
   }
 
   private final Set<InCallUiLock> inCallUiLocks = new ArraySet<>();

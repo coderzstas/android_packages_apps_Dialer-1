@@ -640,7 +640,7 @@ public class OldMainActivityPeer implements MainActivityPeer, FragmentUtilListen
                 R.string.view_conversation,
                 v ->
                     activity.startActivity(
-                        IntentProvider.getSendSmsIntentProvider(number).getClickIntent(activity)))
+                        IntentProvider.getSendSmsIntentProvider(number).getIntent(activity)))
             .setActionTextColor(
                 ContextCompat.getColor(activity, R.color.dialer_snackbar_action_text_color))
             .show();

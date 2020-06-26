@@ -397,6 +397,7 @@ public class VideoCallFragment extends Fragment
 
   @Override
   public void onVideoScreenStart() {
+    inCallButtonUiDelegate.refreshMuteState();
     videoCallScreenDelegate.onVideoCallScreenUiReady();
     getView().postDelayed(cameraPermissionDialogRunnable, CAMERA_PERMISSION_DIALOG_DELAY_IN_MILLIS);
     getView()
@@ -906,18 +907,6 @@ public class VideoCallFragment extends Fragment
     speakerButtonController.setAudioState(audioState);
     muteButton.setChecked(audioState.isMuted());
     updateMutePreviewOverlayVisibility();
-  }
-
-  @Override
-  public void setCallRecordingState(boolean isRecording) {
-  }
-
-  @Override
-  public void setCallRecordingDuration(long durationMs) {
-  }
-
-  @Override
-  public void requestCallRecordingPermissions(String[] permissions) {
   }
 
   @Override

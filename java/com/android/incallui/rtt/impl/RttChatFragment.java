@@ -361,6 +361,7 @@ public class RttChatFragment extends Fragment
 
   @Override
   public void onRttScreenStart() {
+    inCallButtonUiDelegate.refreshMuteState();
     rttCallScreenDelegate.onRttCallScreenUiReady();
     Activity activity = getActivity();
     Window window = getActivity().getWindow();
@@ -595,13 +596,4 @@ public class RttChatFragment extends Fragment
 
   @Override
   public void onAudioRouteSelectorDismiss() {}
-
-  @Override
-  public void requestCallRecordingPermissions(String[] permissions) {}
-
-  @Override
-  public void setCallRecordingDuration(long duration) {}
-
-  @Override
-  public void setCallRecordingState(boolean isRecording) {}
 }
