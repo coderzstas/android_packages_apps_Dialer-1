@@ -571,7 +571,7 @@ public class RttChatFragment extends Fragment
   public void updateButtonStates() {}
 
   @Override
-  public void updateInCallButtonUiColors(int color) {}
+  public void updateInCallButtonUiColors() {}
 
   @Override
   public Fragment getInCallButtonUiFragment() {
