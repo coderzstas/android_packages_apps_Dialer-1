@@ -50,7 +50,7 @@
           android:paddingBottom="@dimen/call_log_vertical_padding"
           android:paddingStart="@dimen/call_log_start_margin"
           android:paddingEnd="@dimen/call_log_outer_margin"
-          android:background="?android:attr/selectableItemBackground"
+          android:background="@color/just_testing"
           android:focusable="true"
           android:gravity="center_vertical"
           android:nextFocusLeft="@+id/quick_contact_photo"
