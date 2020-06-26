@@ -93,7 +93,7 @@ public class AospThemeImpl implements Theme {
   @Override
   public @Type int getTheme() {
     // TODO(a bug): add share prefs check to configure this
-    return DARK;
+    return LIGHT;
   }
 
   @Override
