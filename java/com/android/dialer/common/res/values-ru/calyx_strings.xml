@@ -25,5 +25,5 @@
   <string name="call_account_offline">Нет подключения к интернету</string>
   <string name="call_account_not_installed">Не установлено - Нажмите, чтобы установить</string>
 
-  <string name="incall_screen_privacy_data_collection">Местоположение и аудио этого звонка не являются частными.</string>
+  <string name="incall_screen_privacy_data_collection">Местоположение и аудио этого звонка не являются приватными.</string>
 </resources>
