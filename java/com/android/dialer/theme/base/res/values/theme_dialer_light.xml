@@ -38,6 +38,7 @@
 
   <!-- Activities and Applications should inherit from one of the themes above. -->
   <style name="Dialer.ThemeBase">
+    <item name="android:forceDarkAllowed">true</item>
     <item name="android:windowLightStatusBar">true</item>
     <item name="android:statusBarColor">@android:color/white</item>
 
