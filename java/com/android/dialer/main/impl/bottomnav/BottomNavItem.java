@@ -56,7 +56,7 @@ final class BottomNavItem extends LinearLayout {
     super.setSelected(selected);
     int colorId =
         selected
-            ? ThemeComponent.get(getContext()).theme().getColorPrimary()
+            ? ThemeComponent.get(getContext()).theme().getColorIconSecondary()
             : ThemeComponent.get(getContext()).theme().getTextColorSecondary();
     image.setImageTintList(ColorStateList.valueOf(colorId));
     text.setTextColor(colorId);
