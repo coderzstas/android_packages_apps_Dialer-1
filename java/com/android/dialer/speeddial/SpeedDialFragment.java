@@ -44,7 +44,6 @@ import com.android.dialer.callintent.CallIntentBuilder;
 import com.android.dialer.common.Assert;
 import com.android.dialer.common.FragmentUtils;
 import com.android.dialer.common.LogUtil;
-import com.android.dialer.common.accounts.SelectAccountDialogFragment;
 import com.android.dialer.common.concurrent.DefaultFutureCallback;
 import com.android.dialer.common.concurrent.DialerExecutorComponent;
 import com.android.dialer.common.concurrent.SupportUiListener;
@@ -374,7 +373,7 @@ public class SpeedDialFragment extends Fragment {
     public void onAmbiguousContactClicked(SpeedDialUiItem speedDialUiItem) {
       // If there is only one channel, skip the menu and place a call directly
       if (speedDialUiItem.channels().size() == 1) {
-        onClick(speedDialUiItem.channels().get(0), speedDialUiItem.lookupKey());
+        onClick(speedDialUiItem.channels().get(0));
         return;
       }
 
@@ -383,18 +382,18 @@ public class SpeedDialFragment extends Fragment {
     }
 
     @Override
-    public void onClick(Channel channel, String lookupKey) {
+    public void onClick(Channel channel) {
       if (channel.technology() == Channel.DUO) {
         Logger.get(activity)
             .logImpression(DialerImpression.Type.LIGHTBRINGER_VIDEO_REQUESTED_FOR_FAVORITE_CONTACT);
       }
 
       PreCall.start(
-          activity, channel.number(),
+          activity,
           new CallIntentBuilder(channel.number(), CallInitiationType.Type.SPEED_DIAL)
               .setAllowAssistedDial(true)
               .setIsVideoCall(channel.isVideoTechnology())
-              .setIsDuoCall(channel.technology() == Channel.DUO), lookupKey);
+              .setIsDuoCall(channel.technology() == Channel.DUO));
     }
 
     @Override
@@ -436,18 +435,18 @@ public class SpeedDialFragment extends Fragment {
     class SpeedDialContextMenuItemListener implements ContextMenuItemListener {
 
       @Override
-      public void placeCall(Channel channel, String lookupKey) {
+      public void placeCall(Channel channel) {
         if (channel.technology() == Channel.DUO) {
           Logger.get(activity)
               .logImpression(
                   DialerImpression.Type.LIGHTBRINGER_VIDEO_REQUESTED_FOR_FAVORITE_CONTACT);
         }
         PreCall.start(
-            activity, channel.number(),
+            activity,
             new CallIntentBuilder(channel.number(), CallInitiationType.Type.SPEED_DIAL)
                 .setAllowAssistedDial(true)
                 .setIsVideoCall(channel.isVideoTechnology())
-                .setIsDuoCall(channel.technology() == Channel.DUO), lookupKey);
+                .setIsDuoCall(channel.technology() == Channel.DUO));
       }
 
       @Override
@@ -539,18 +538,18 @@ public class SpeedDialFragment extends Fragment {
     }
 
     @Override
-    public void onRowClicked(Channel channel, String lookupKey) {
+    public void onRowClicked(Channel channel) {
       if (channel.technology() == Channel.DUO) {
         Logger.get(getContext())
             .logImpression(
                 DialerImpression.Type.LIGHTBRINGER_VIDEO_REQUESTED_FOR_SUGGESTED_CONTACT);
       }
       PreCall.start(
-          getActivity(), channel.number(),
+          getContext(),
           new CallIntentBuilder(channel.number(), CallInitiationType.Type.SPEED_DIAL)
               .setAllowAssistedDial(true)
               .setIsVideoCall(channel.isVideoTechnology())
-              .setIsDuoCall(channel.technology() == Channel.DUO), lookupKey);
+              .setIsDuoCall(channel.technology() == Channel.DUO));
     }
 
     private final class StarContactModule implements HistoryItemActionModule {

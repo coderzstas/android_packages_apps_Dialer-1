@@ -38,7 +38,6 @@ import com.android.dialer.assisteddialing.ui.AssistedDialingSettingActivity;
 import com.android.dialer.calldetails.CallDetailsEntries.CallDetailsEntry;
 import com.android.dialer.callintent.CallInitiationType;
 import com.android.dialer.callintent.CallIntentBuilder;
-import com.android.dialer.callrecord.CallRecordingDataStore;
 import com.android.dialer.common.Assert;
 import com.android.dialer.common.LogUtil;
 import com.android.dialer.common.concurrent.DialerExecutor.FailureListener;
@@ -97,7 +96,6 @@ abstract class CallDetailsActivityCommon extends AppCompatActivity {
   private CallDetailsAdapterCommon adapter;
   private CallDetailsEntries callDetailsEntries;
   private UiListener<ImmutableSet<String>> checkRttTranscriptAvailabilityListener;
-  private CallRecordingDataStore callRecordingDataStore;
 
   /**
    * Handles the intent that launches {@link OldCallDetailsActivity} or {@link CallDetailsActivity},
@@ -110,8 +108,7 @@ abstract class CallDetailsActivityCommon extends AppCompatActivity {
       CallDetailsEntryViewHolder.CallDetailsEntryListener callDetailsEntryListener,
       CallDetailsHeaderViewHolder.CallDetailsHeaderListener callDetailsHeaderListener,
       CallDetailsFooterViewHolder.ReportCallIdListener reportCallIdListener,
-      CallDetailsFooterViewHolder.DeleteCallDetailsListener deleteCallDetailsListener,
-      CallRecordingDataStore callRecordingDataStore);
+      CallDetailsFooterViewHolder.DeleteCallDetailsListener deleteCallDetailsListener);
 
   /** Returns the phone number of the call details. */
   protected abstract String getNumber();
@@ -132,16 +129,8 @@ abstract class CallDetailsActivityCommon extends AppCompatActivity {
     checkRttTranscriptAvailabilityListener =
         DialerExecutorComponent.get(this)
             .createUiListener(getFragmentManager(), "Query RTT transcript availability");
-    callRecordingDataStore = new CallRecordingDataStore();
     handleIntent(getIntent());
     setupRecyclerViewForEntries();
-  }
-
-  @Override
-  @CallSuper
-  protected void onDestroy() {
-    super.onDestroy();
-    callRecordingDataStore.close();
   }
 
   @Override
@@ -216,8 +205,7 @@ abstract class CallDetailsActivityCommon extends AppCompatActivity {
             callDetailsEntryListener,
             callDetailsHeaderListener,
             reportCallIdListener,
-            deleteCallDetailsListener,
-            callRecordingDataStore);
+            deleteCallDetailsListener);
 
     RecyclerView recyclerView = findViewById(R.id.recycler_view);
     recyclerView.setLayoutManager(new LinearLayoutManager(this));

@@ -31,6 +31,8 @@ public interface InCallButtonUiDelegate {
 
   void onRestoreInstanceState(Bundle savedInstanceState);
 
+  void refreshMuteState();
+
   void addCallClicked();
 
   void muteClicked(boolean checked, boolean clickedByUser);
@@ -64,8 +66,6 @@ public interface InCallButtonUiDelegate {
   void showAudioRouteSelector();
 
   void swapSimClicked();
-
-  void callRecordClicked(boolean checked);
 
   Context getContext();
 }

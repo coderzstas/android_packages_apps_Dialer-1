@@ -78,7 +78,6 @@ import com.android.dialer.calllog.config.CallLogConfigComponent;
 import com.android.dialer.calllog.ui.NewCallLogFragment;
 import com.android.dialer.common.FragmentUtils.FragmentUtilListener;
 import com.android.dialer.common.LogUtil;
-import com.android.dialer.common.accounts.SelectAccountDialogFragment;
 import com.android.dialer.common.concurrent.DefaultFutureCallback;
 import com.android.dialer.common.concurrent.DialerExecutorComponent;
 import com.android.dialer.common.concurrent.ThreadUtil;
@@ -640,7 +639,7 @@ public class OldMainActivityPeer implements MainActivityPeer, FragmentUtilListen
                 R.string.view_conversation,
                 v ->
                     activity.startActivity(
-                        IntentProvider.getSendSmsIntentProvider(number).getClickIntent(activity)))
+                        IntentProvider.getSendSmsIntentProvider(number).getIntent(activity)))
             .setActionTextColor(
                 ContextCompat.getColor(activity, R.color.dialer_snackbar_action_text_color))
             .show();
@@ -1145,17 +1144,17 @@ public class OldMainActivityPeer implements MainActivityPeer, FragmentUtilListen
 
     @Override
     public void onPickPhoneNumber(
-        String phoneNumber, boolean isVideoCall, CallSpecificAppData callSpecificAppData, String lookupKey) {
+        String phoneNumber, boolean isVideoCall, CallSpecificAppData callSpecificAppData) {
       if (phoneNumber == null) {
         // Invalid phone number, but let the call go through so that InCallUI can show
         // an error message.
         phoneNumber = "";
       }
       PreCall.start(
-          activity, phoneNumber,
+          activity,
           new CallIntentBuilder(phoneNumber, callSpecificAppData)
               .setIsVideoCall(isVideoCall)
-              .setAllowAssistedDial(callSpecificAppData.getAllowAssistedDialing()), lookupKey);
+              .setAllowAssistedDial(callSpecificAppData.getAllowAssistedDialing()));
     }
 
     @Override
@@ -1337,7 +1336,7 @@ public class OldMainActivityPeer implements MainActivityPeer, FragmentUtilListen
 
       if (ConfigProviderComponent.get(activity)
           .getConfigProvider()
-          .getBoolean("enable_new_favorites_tab", true)) {
+          .getBoolean("enable_new_favorites_tab", false)) {
         android.support.v4.app.Fragment supportFragment =
             supportFragmentManager.findFragmentByTag(SPEED_DIAL_TAG);
         showSupportFragment(

@@ -54,8 +54,7 @@
 
     <SwitchPreference
       android:key="@string/incall_vibrate_outgoing_key"
-      android:title="@string/incall_vibrate_outgoing_title"
-      android:defaultValue="true" />
+      android:title="@string/incall_vibrate_outgoing_title" />
 
     <SwitchPreference
       android:key="@string/incall_vibrate_call_waiting_key"
@@ -63,32 +62,12 @@
 
     <SwitchPreference
       android:key="@string/incall_vibrate_hangup_key"
-      android:title="@string/incall_vibrate_hangup_title"
-      android:defaultValue="true" />
+      android:title="@string/incall_vibrate_hangup_title" />
 
     <SwitchPreference
       android:key="@string/incall_vibrate_45_key"
       android:title="@string/incall_vibrate_45_title"
       android:summary="@string/incall_vibrate_45_summary" />
-
-  </PreferenceCategory>
-
-  <PreferenceCategory
-    android:key="@string/call_recording_category_key"
-    android:title="@string/call_recording_category_title">
-
-    <ListPreference
-      android:key="@string/call_recording_format_key"
-      android:title="@string/call_recording_format"
-      android:summary="%s"
-      android:entries="@array/call_recording_encoder_entries"
-      android:entryValues="@array/call_recording_encoder_values"
-      android:defaultValue="0" />
-
-  <SwitchPreference
-    android:defaultValue="false"
-    android:key="@string/auto_call_recording_key"
-    android:title="@string/auto_call_recording_title"/>
 
   </PreferenceCategory>
 

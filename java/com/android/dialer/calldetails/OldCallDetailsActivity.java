@@ -22,7 +22,6 @@ import com.android.dialer.calldetails.CallDetailsEntryViewHolder.CallDetailsEntr
 import com.android.dialer.calldetails.CallDetailsFooterViewHolder.DeleteCallDetailsListener;
 import com.android.dialer.calldetails.CallDetailsFooterViewHolder.ReportCallIdListener;
 import com.android.dialer.calldetails.CallDetailsHeaderViewHolder.CallDetailsHeaderListener;
-import com.android.dialer.callrecord.CallRecordingDataStore;
 import com.android.dialer.common.Assert;
 import com.android.dialer.dialercontact.DialerContact;
 import com.android.dialer.protos.ProtoParsers;
@@ -81,8 +80,7 @@ public final class OldCallDetailsActivity extends CallDetailsActivityCommon {
       CallDetailsEntryListener callDetailsEntryListener,
       CallDetailsHeaderListener callDetailsHeaderListener,
       ReportCallIdListener reportCallIdListener,
-      DeleteCallDetailsListener deleteCallDetailsListener,
-      CallRecordingDataStore callRecordingDataStore) {
+      DeleteCallDetailsListener deleteCallDetailsListener) {
     return new OldCallDetailsAdapter(
         /* context = */ this,
         contact,
@@ -90,8 +88,7 @@ public final class OldCallDetailsActivity extends CallDetailsActivityCommon {
         callDetailsEntryListener,
         callDetailsHeaderListener,
         reportCallIdListener,
-        deleteCallDetailsListener,
-        callRecordingDataStore);
+        deleteCallDetailsListener);
   }
 
   @Override

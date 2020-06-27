@@ -27,8 +27,6 @@ import android.app.KeyguardManager;
 import android.app.KeyguardManager.KeyguardDismissCallback;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Build.VERSION;
@@ -57,11 +55,12 @@ import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityNodeInfo.AccessibilityAction;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import com.android.dialer.common.Assert;
 import com.android.dialer.common.FragmentUtils;
 import com.android.dialer.common.LogUtil;
 import com.android.dialer.common.MathUtil;
-import com.android.dialer.logging.DialerImpression;
+import com.android.dialer.logging.DialerImpression.Type;
 import com.android.dialer.logging.Logger;
 import com.android.dialer.multimedia.MultimediaData;
 import com.android.dialer.telecom.TelecomUtil;
@@ -90,15 +89,15 @@ import com.android.incallui.incalluilock.InCallUiLock;
 import com.android.incallui.maps.MapsComponent;
 import com.android.incallui.sessiondata.AvatarPresenter;
 import com.android.incallui.sessiondata.MultimediaFragment;
-import com.android.incallui.speakeasy.Annotations.SpeakEasyChipResourceId;
+import com.android.incallui.sessiondata.MultimediaFragment.Holder;
 import com.android.incallui.speakeasy.SpeakEasyComponent;
 import com.android.incallui.util.AccessibilityUtil;
 import com.android.incallui.video.protocol.VideoCallScreen;
 import com.android.incallui.videotech.utils.VideoUtils;
-import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /** The new version of the incoming call screen. */
 @SuppressLint("ClickableViewAccessibility")
@@ -108,7 +107,7 @@ public class AnswerFragment extends Fragment
         SmsSheetHolder,
         CreateCustomSmsHolder,
         AnswerMethodHolder,
-        MultimediaFragment.Holder {
+        Holder {
 
   @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
   static final String ARG_CALL_ID = "call_id";
@@ -172,7 +171,6 @@ public class AnswerFragment extends Fragment
   private ContactGridManager contactGridManager;
   private VideoCallScreen answerVideoCallScreen;
   private Handler handler = new Handler(Looper.getMainLooper());
-  private boolean isFullscreenPhoto = false;
 
   private enum SecondaryBehavior {
     REJECT_WITH_SMS(
@@ -440,6 +438,11 @@ public class AnswerFragment extends Fragment
     secondaryButton.setFocusable(AccessibilityUtil.isAccessibilityEnabled(getContext()));
     secondaryButton.setAccessibilityDelegate(accessibilityDelegate);
 
+    // TODO(wangqi): Remove this when all secondary behavior is migrated to chip button.
+    if (secondaryBehavior.equals(SecondaryBehavior.REJECT_WITH_SMS)) {
+      secondaryButton.setVisibility(View.INVISIBLE);
+    }
+
     if (isVideoUpgradeRequest()) {
       secondaryButton.setVisibility(View.INVISIBLE);
     } else if (isVideoCall()) {
@@ -469,26 +472,39 @@ public class AnswerFragment extends Fragment
         });
   }
 
+  private void addSecondaryActionChip(
+      @DrawableRes int iconRes, @StringRes int textRes, OnClickListener onClickListener) {
+    LinearLayout button =
+        (LinearLayout)
+            getLayoutInflater().inflate(R.layout.secondary_action_chip, chipContainer, false);
+
+    ImageView icon = button.findViewById(R.id.secondary_action_icon);
+    icon.setImageResource(iconRes);
+    TextView text = button.findViewById(R.id.secondary_action_text);
+    text.setText(textRes);
+    button.setOnClickListener(onClickListener);
+    chipContainer.addView(button);
+  }
+
   /** Initialize chip buttons */
   private void initChips() {
-
-    if (!allowSpeakEasy()) {
-      chipContainer.setVisibility(View.GONE);
-      return;
+    if (allowSpeakEasy()) {
+      Optional<Integer> speakEasyIconOptional =
+          SpeakEasyComponent.get(getContext()).speakEasyIconResource();
+      Optional<Integer> speakEasyTextOptional =
+          SpeakEasyComponent.get(getContext()).speakEasyTextResource();
+      if (speakEasyIconOptional.isPresent() && speakEasyTextOptional.isPresent()) {
+        addSecondaryActionChip(
+            speakEasyIconOptional.get(), speakEasyTextOptional.get(), this::performSpeakEasy);
+      }
     }
-    chipContainer.setVisibility(View.VISIBLE);
-
-    @SpeakEasyChipResourceId
-    Optional<Integer> chipLayoutOptional = SpeakEasyComponent.get(getContext()).speakEasyChip();
-    if (chipLayoutOptional.isPresent()) {
-
-      LinearLayout chipLayout =
-          (LinearLayout) getLayoutInflater().inflate(chipLayoutOptional.get(), null);
-
-      chipLayout.setOnClickListener(this::performSpeakEasy);
-
-      chipContainer.addView(chipLayout);
+    if (!isVideoCall() && !isVideoUpgradeRequest()) {
+      addSecondaryActionChip(
+          R.drawable.quantum_ic_message_white_24,
+          R.string.call_incoming_reply_with_sms,
+          v -> performSecondaryButtonAction());
     }
+    chipContainer.setVisibility(chipContainer.getChildCount() > 0 ? View.VISIBLE : View.GONE);
   }
 
   @Override
@@ -723,15 +739,7 @@ public class AnswerFragment extends Fragment
     buttonAcceptClicked = false;
     buttonRejectClicked = false;
 
-    SharedPreferences mPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-    isFullscreenPhoto = mPrefs.getBoolean("fullscreen_caller_photo", false);
-
-    int res = R.layout.fragment_incoming_call;
-    if(isFullscreenPhoto){
-      res = R.layout.fragment_incoming_call_fullscreen_photo;
-    }
-
-    View view = inflater.inflate(res, container, false);
+    View view = inflater.inflate(R.layout.fragment_incoming_call, container, false);
     secondaryButton = (SwipeButtonView) view.findViewById(R.id.incoming_secondary_button);
     answerAndReleaseButton = (SwipeButtonView) view.findViewById(R.id.incoming_secondary_button2);
 
@@ -896,8 +904,6 @@ public class AnswerFragment extends Fragment
     if (primaryCallState != null) {
       contactGridManager.setCallState(primaryCallState);
     }
-
-    restoreBackgroundMaskColor();
   }
 
   @Override
@@ -916,12 +922,6 @@ public class AnswerFragment extends Fragment
 
   @Override
   public void onAnswerProgressUpdate(@FloatRange(from = -1f, to = 1f) float answerProgress) {
-    // Don't fade the window background for call waiting or video upgrades. Fading the background
-    // shows the system wallpaper which looks bad because on reject we switch to another call.
-    if (primaryCallState.state() == DialerCallState.INCOMING && !isVideoCall()) {
-      answerScreenDelegate.updateWindowBackgroundColor(answerProgress);
-    }
-
     // Fade and scale contact name and video call text
     float startDelay = .25f;
     // Header progress is zero over positiveAdjustedProgress = [0, startDelay],
@@ -950,7 +950,6 @@ public class AnswerFragment extends Fragment
   @Override
   public void resetAnswerProgress() {
     affordanceHolderLayout.reset(true);
-    restoreBackgroundMaskColor();
   }
 
   private void animateEntry(@NonNull View rootView) {
@@ -1011,16 +1010,11 @@ public class AnswerFragment extends Fragment
             "AnswerFragment.rejectCall",
             "Null context when rejecting call. Logger call was skipped");
       } else {
-        Logger.get(context)
-            .logImpression(DialerImpression.Type.REJECT_INCOMING_CALL_FROM_ANSWER_SCREEN);
+        Logger.get(context).logImpression(Type.REJECT_INCOMING_CALL_FROM_ANSWER_SCREEN);
       }
       buttonRejectClicked = true;
       answerScreenDelegate.onReject();
     }
-  }
-
-  private void restoreBackgroundMaskColor() {
-    answerScreenDelegate.updateWindowBackgroundColor(0);
   }
 
   private void restoreSwipeHintTexts() {
@@ -1198,21 +1192,14 @@ public class AnswerFragment extends Fragment
     @Override
     public View onCreateView(
         LayoutInflater layoutInflater, @Nullable ViewGroup viewGroup, @Nullable Bundle bundle) {
-      SharedPreferences mPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-      boolean isFullscreenPhoto = mPrefs.getBoolean("fullscreen_caller_photo", false);
-
-      int res = R.layout.fragment_avatar;
-      if(isFullscreenPhoto){
-        res = R.layout.fragment_avatar_fullscreen_photo;
-      }
-      return layoutInflater.inflate(res, viewGroup, false);
+      return layoutInflater.inflate(R.layout.fragment_avatar, viewGroup, false);
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle bundle) {
       super.onViewCreated(view, bundle);
       avatarImageView = ((ImageView) view.findViewById(R.id.contactgrid_avatar));
-      FragmentUtils.getParentUnsafe(this, MultimediaFragment.Holder.class).updateAvatar(this);
+      FragmentUtils.getParentUnsafe(this, Holder.class).updateAvatar(this);
     }
 
     @NonNull

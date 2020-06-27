@@ -91,7 +91,6 @@ import com.android.dialer.callintent.CallSpecificAppData;
 import com.android.dialer.common.Assert;
 import com.android.dialer.common.LogUtil;
 import com.android.dialer.common.UiUtil;
-import com.android.dialer.common.accounts.SelectAccountDialogFragment;
 import com.android.dialer.common.concurrent.DialerExecutorComponent;
 import com.android.dialer.common.concurrent.ThreadUtil;
 import com.android.dialer.configprovider.ConfigProviderComponent;
@@ -770,10 +769,9 @@ public class DialtactsActivity extends TransactionSafeActivity
         String number = data.getStringExtra(OldCallDetailsActivity.EXTRA_PHONE_NUMBER);
         int snackbarDurationMillis = 5_000;
         Snackbar.make(parentLayout, getString(R.string.ec_data_deleted), snackbarDurationMillis)
-            .setAction(R.string.view_conversation, v -> {
-                IntentProvider provider = IntentProvider.getSendSmsIntentProvider(number);
-                startActivity(provider.getClickIntent(this));
-            })
+            .setAction(
+                R.string.view_conversation,
+                v -> startActivity(IntentProvider.getSendSmsIntentProvider(number).getIntent(this)))
             .setActionTextColor(getResources().getColor(R.color.dialer_snackbar_action_text_color))
             .show();
       }
@@ -1409,17 +1407,17 @@ public class DialtactsActivity extends TransactionSafeActivity
 
   @Override
   public void onPickPhoneNumber(
-      String phoneNumber, boolean isVideoCall, CallSpecificAppData callSpecificAppData, String lookupKey) {
+      String phoneNumber, boolean isVideoCall, CallSpecificAppData callSpecificAppData) {
     if (phoneNumber == null) {
       // Invalid phone number, but let the call go through so that InCallUI can show
       // an error message.
       phoneNumber = "";
     }
     PreCall.start(
-        this, phoneNumber,
+        this,
         new CallIntentBuilder(phoneNumber, callSpecificAppData)
             .setIsVideoCall(isVideoCall)
-            .setAllowAssistedDial(callSpecificAppData.getAllowAssistedDialing()), lookupKey);
+            .setAllowAssistedDial(callSpecificAppData.getAllowAssistedDialing()));
 
     clearSearchOnPause = true;
   }
@@ -1627,6 +1625,6 @@ public class DialtactsActivity extends TransactionSafeActivity
   private boolean newFavoritesIsEnabled() {
     return ConfigProviderComponent.get(this)
         .getConfigProvider()
-        .getBoolean("enable_new_favorites_tab", true);
+        .getBoolean("enable_new_favorites_tab", false);
   }
 }

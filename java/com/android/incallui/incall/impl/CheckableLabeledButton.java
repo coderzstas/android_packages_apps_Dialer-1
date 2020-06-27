@@ -18,16 +18,11 @@ package com.android.incallui.incall.impl;
 
 import android.animation.AnimatorInflater;
 import android.content.Context;
-import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
-import android.graphics.Color;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.drawable.Drawable;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.ColorInt;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.StringRes;
 import android.text.TextUtils.TruncateAt;
@@ -38,12 +33,12 @@ import android.widget.Checkable;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import com.android.dialer.theme.base.ThemeComponent;
 
 /** A button to show on the incall screen */
 public class CheckableLabeledButton extends LinearLayout implements Checkable {
 
   private static final int[] CHECKED_STATE_SET = {android.R.attr.state_checked};
-  private static final float DISABLED_STATE_OPACITY = .3f;
   private boolean broadcasting;
   private boolean isChecked;
   private OnCheckedChangeListener onCheckedChangeListener;
@@ -68,16 +63,6 @@ public class CheckableLabeledButton extends LinearLayout implements Checkable {
     Drawable icon;
     CharSequence labelText;
     boolean enabled;
-
-    SharedPreferences mPrefs = PreferenceManager.getDefaultSharedPreferences(context);
-    boolean isFullscreenPhoto = mPrefs.getBoolean("fullscreen_caller_photo", false);
-    int resBackground = R.drawable.incall_button_background;
-    int resBackgroundMore = R.drawable.incall_button_background_more;
-
-    if(isFullscreenPhoto){
-      resBackground = R.drawable.incall_button_background_fullscreen_photo;
-      resBackgroundMore = R.drawable.incall_button_background_more_fullscreen_photo;
-    }
 
     backgroundMore =
         getResources().getDrawable(R.drawable.incall_button_background_more, context.getTheme());
@@ -106,8 +91,7 @@ public class CheckableLabeledButton extends LinearLayout implements Checkable {
     iconView.setPadding(iconPadding, iconPadding, iconPadding, iconPadding);
     iconView.setImageDrawable(icon);
     iconView.setImageTintMode(Mode.SRC_IN);
-    iconView.setImageTintList(
-        getResources().getColorStateList(R.color.incall_button_icon, context.getTheme()));
+    iconView.setImageTintList(ThemeComponent.get(context).theme().getColorIconStateList());
 
     iconView.setBackground(
         getResources().getDrawable(R.drawable.incall_button_background, context.getTheme()));
@@ -126,8 +110,7 @@ public class CheckableLabeledButton extends LinearLayout implements Checkable {
     labelView.setLayoutParams(labelParams);
     labelView.setTextAppearance(R.style.Dialer_Incall_TextAppearance_Label);
     labelView.setText(labelText);
-    labelView.setSingleLine(false);
-    labelView.setMaxLines(2);
+    labelView.setSingleLine();
     labelView.setMaxEms(9);
     labelView.setEllipsize(TruncateAt.END);
     labelView.setGravity(Gravity.CENTER);
@@ -138,20 +121,6 @@ public class CheckableLabeledButton extends LinearLayout implements Checkable {
     setClickable(true);
     setEnabled(enabled);
     setOutlineProvider(null);
-  }
-
-  @Override
-  public void refreshDrawableState() {
-    super.refreshDrawableState();
-    iconView.setAlpha(isEnabled() ? 1f : DISABLED_STATE_OPACITY);
-    labelView.setAlpha(isEnabled() ? 1f : DISABLED_STATE_OPACITY);
-  }
-
-  public void setCheckedColor(@ColorInt int color) {
-    iconView.setImageTintList(
-        new ColorStateList(
-            new int[][] {new int[] {android.R.attr.state_checked}, new int[] {}},
-            new int[] {color, Color.WHITE}));
   }
 
   public Drawable getIconDrawable() {
@@ -167,10 +136,6 @@ public class CheckableLabeledButton extends LinearLayout implements Checkable {
 
   public void setLabelText(@StringRes int stringRes) {
     labelView.setText(stringRes);
-  }
-
-  public void setLabelText(CharSequence label) {
-    labelView.setText(label);
   }
 
   /** Shows or hides a little down arrow to indicate that the button will pop up a menu. */

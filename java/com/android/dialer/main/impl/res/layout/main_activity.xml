@@ -59,10 +59,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="24dp"
-        android:layout_gravity="center|bottom"
+        android:layout_gravity="end|bottom"
         android:src="@drawable/quantum_ic_dialpad_white_24"
         android:contentDescription="@string/dialpad_button_content_description"
-        app:backgroundTint="#00C852"/>
+        app:backgroundTint="?android:attr/colorAccent"/>
 
     <include android:id="@+id/promotion_bottom_sheet"
         layout="@layout/promotion_bottom_sheet"/>

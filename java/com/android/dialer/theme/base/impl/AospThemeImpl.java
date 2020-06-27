@@ -17,6 +17,7 @@
 package com.android.dialer.theme.base.impl;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.support.annotation.ColorInt;
 import android.support.annotation.StyleRes;
@@ -32,19 +33,20 @@ import javax.inject.Singleton;
 @Singleton
 public class AospThemeImpl implements Theme {
 
-  private int colorIcon = -2;
-  private int colorIconSecondary = -2;
-  private int colorPrimary = -2;
-  private int colorPrimaryDark = -2;
-  private int colorAccent = -2;
-  private int textColorPrimary = -2;
-  private int textColorSecondary = -2;
-  private int textColorPrimaryInverse = -2;
-  private int textColorHint = -2;
-  private int colorBackground = -2;
-  private int colorBackgroundFloating = -2;
-  private int colorTextOnUnthemedDarkBackground = -2;
-  private int colorIconOnUnthemedDarkBackground = -2;
+  private int colorIcon = -1;
+  private final ColorStateList colorIconStateList;
+  private int colorIconSecondary = -1;
+  private int colorPrimary = -1;
+  private int colorPrimaryDark = -1;
+  private int colorAccent = -1;
+  private int textColorPrimary = -1;
+  private int textColorSecondary = -1;
+  private int textColorPrimaryInverse = -1;
+  private int textColorHint = -1;
+  private int colorBackground = -1;
+  private int colorBackgroundFloating = -1;
+  private int colorTextOnUnthemedDarkBackground = -1;
+  private int colorIconOnUnthemedDarkBackground = -1;
 
   public AospThemeImpl(Context context) {
 
@@ -70,19 +72,20 @@ public class AospThemeImpl implements Theme {
                   R.attr.colorTextOnUnthemedDarkBackground,
                   R.attr.colorIconOnUnthemedDarkBackground,
                 });
-    colorPrimary = array.getColor(/* index= */ 0, /* defValue= */ -2);
-    colorPrimaryDark = array.getColor(/* index= */ 1, /* defValue= */ -2);
-    colorAccent = array.getColor(/* index= */ 2, /* defValue= */ -2);
-    textColorPrimary = array.getColor(/* index= */ 3, /* defValue= */ -2);
-    textColorSecondary = array.getColor(/* index= */ 4, /* defValue= */ -2);
-    textColorPrimaryInverse = array.getColor(/* index= */ 5, /* defValue= */ -2);
-    textColorHint = array.getColor(/* index= */ 6, /* defValue= */ -2);
-    colorBackground = array.getColor(/* index= */ 7, /* defValue= */ -2);
-    colorBackgroundFloating = array.getColor(/* index= */ 8, /* defValue= */ -2);
-    colorIcon = array.getColor(/* index= */ 9, /* defValue= */ -2);
-    colorIconSecondary = array.getColor(/* index= */ 10, /* defValue= */ -2);
-    colorTextOnUnthemedDarkBackground = array.getColor(/* index= */ 11, /* defValue= */ -2);
-    colorIconOnUnthemedDarkBackground = array.getColor(/* index= */ 12, /* defValue= */ -2);
+    colorPrimary = array.getColor(/* index= */ 0, /* defValue= */ -1);
+    colorPrimaryDark = array.getColor(/* index= */ 1, /* defValue= */ -1);
+    colorAccent = array.getColor(/* index= */ 2, /* defValue= */ -1);
+    textColorPrimary = array.getColor(/* index= */ 3, /* defValue= */ -1);
+    textColorSecondary = array.getColor(/* index= */ 4, /* defValue= */ -1);
+    textColorPrimaryInverse = array.getColor(/* index= */ 5, /* defValue= */ -1);
+    textColorHint = array.getColor(/* index= */ 6, /* defValue= */ -1);
+    colorBackground = array.getColor(/* index= */ 7, /* defValue= */ -1);
+    colorBackgroundFloating = array.getColor(/* index= */ 8, /* defValue= */ -1);
+    colorIcon = array.getColor(/* index= */ 9, /* defValue= */ -1);
+    colorIconStateList = array.getColorStateList(/* index= */ 9);
+    colorIconSecondary = array.getColor(/* index= */ 10, /* defValue= */ -1);
+    colorTextOnUnthemedDarkBackground = array.getColor(/* index= */ 11, /* defValue= */ -1);
+    colorIconOnUnthemedDarkBackground = array.getColor(/* index= */ 12, /* defValue= */ -1);
     array.recycle();
   }
 
@@ -99,10 +102,25 @@ public class AospThemeImpl implements Theme {
   @Override
   public @StyleRes int getApplicationThemeRes() {
     switch (getTheme()) {
+      case LIGHT:
+      case LIGHT_M2:
+        return R.style.Dialer_ThemeBase_NoActionBar;
       case DARK:
         return R.style.Dialer_Dark_ThemeBase_NoActionBar;
+      case UNKNOWN:
+      default:
+        throw Assert.createIllegalStateFailException("Theme hasn't been set yet.");
+    }
+  }
+
+  @Override
+  public @StyleRes int getBottomSheetStyleRes() {
+    switch (getTheme()) {
       case LIGHT:
-        return R.style.Dialer_ThemeBase_NoActionBar;
+      case LIGHT_M2:
+        return R.style.DialerBottomSheetDialogStyle_Light;
+      case DARK:
+        return R.style.DialerBottomSheetDialogStyle_Dark;
       case UNKNOWN:
       default:
         throw Assert.createIllegalStateFailException("Theme hasn't been set yet.");
@@ -121,55 +139,61 @@ public class AospThemeImpl implements Theme {
 
   @Override
   public @ColorInt int getColorIcon() {
-    Assert.checkArgument(colorIcon != -2);
+    Assert.checkArgument(colorIcon != -1);
     return colorIcon;
   }
 
   @Override
+  public ColorStateList getColorIconStateList() {
+    Assert.checkArgument(colorIconStateList != null);
+    return colorIconStateList;
+  }
+
+  @Override
   public @ColorInt int getColorIconSecondary() {
-    Assert.checkArgument(colorIconSecondary != -2);
+    Assert.checkArgument(colorIconSecondary != -1);
     return colorIconSecondary;
   }
 
   @Override
   public @ColorInt int getColorPrimary() {
-    Assert.checkArgument(colorPrimary != -2);
+    Assert.checkArgument(colorPrimary != -1);
     return colorPrimary;
   }
 
   @Override
   public int getColorPrimaryDark() {
-    Assert.checkArgument(colorPrimaryDark != -2);
+    Assert.checkArgument(colorPrimaryDark != -1);
     return colorPrimaryDark;
   }
 
   @Override
   public @ColorInt int getColorAccent() {
-    Assert.checkArgument(colorAccent != -2);
+    Assert.checkArgument(colorAccent != -1);
     return colorAccent;
   }
 
   @Override
   public @ColorInt int getTextColorSecondary() {
-    Assert.checkArgument(textColorSecondary != -2);
+    Assert.checkArgument(textColorSecondary != -1);
     return textColorSecondary;
   }
 
   @Override
   public @ColorInt int getTextColorPrimary() {
-    Assert.checkArgument(textColorPrimary != -2);
+    Assert.checkArgument(textColorPrimary != -1);
     return textColorPrimary;
   }
 
   @Override
   public @ColorInt int getColorTextOnUnthemedDarkBackground() {
-    Assert.checkArgument(colorTextOnUnthemedDarkBackground != -2);
+    Assert.checkArgument(colorTextOnUnthemedDarkBackground != -1);
     return colorTextOnUnthemedDarkBackground;
   }
 
   @Override
   public @ColorInt int getColorIconOnUnthemedDarkBackground() {
-    Assert.checkArgument(colorIconOnUnthemedDarkBackground != -2);
+    Assert.checkArgument(colorIconOnUnthemedDarkBackground != -1);
     return colorIconOnUnthemedDarkBackground;
   }
 }

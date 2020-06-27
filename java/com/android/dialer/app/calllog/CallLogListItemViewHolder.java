@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2011 The Android Open Source Project
- * Copyright (C) 2020 The Calyx Institute
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +19,6 @@ package com.android.dialer.app.calllog;
 import android.Manifest.permission;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -70,8 +68,6 @@ import com.android.dialer.calllogutils.CallbackActionHelper.CallbackAction;
 import com.android.dialer.clipboard.ClipboardUtils;
 import com.android.dialer.common.Assert;
 import com.android.dialer.common.LogUtil;
-import com.android.dialer.common.accounts.SelectAccountDialogFragment;
-import com.android.dialer.common.accounts.SpecialCallingAccounts;
 import com.android.dialer.common.concurrent.AsyncTaskExecutors;
 import com.android.dialer.configprovider.ConfigProviderComponent;
 import com.android.dialer.constants.ActivityRequestCodes;
@@ -94,7 +90,6 @@ import com.android.dialer.phonenumbercache.CachedNumberLookupService;
 import com.android.dialer.phonenumbercache.ContactInfo;
 import com.android.dialer.phonenumbercache.PhoneNumberCache;
 import com.android.dialer.phonenumberutil.PhoneNumberHelper;
-import com.android.dialer.precall.PreCallCoordinator;
 import com.android.dialer.telecom.TelecomUtil;
 import com.android.dialer.util.CallUtil;
 import com.android.dialer.util.DialerUtils;
@@ -112,7 +107,6 @@ import java.lang.ref.WeakReference;
  */
 public final class CallLogListItemViewHolder extends RecyclerView.ViewHolder
     implements View.OnClickListener,
-        View.OnLongClickListener,
         MenuItem.OnMenuItemClickListener,
         View.OnCreateContextMenuListener {
 
@@ -313,7 +307,6 @@ public final class CallLogListItemViewHolder extends RecyclerView.ViewHolder
     quickContactView.setOverlay(null);
     quickContactView.setPrioritizedMimeType(Phone.CONTENT_ITEM_TYPE);
     primaryActionButtonView.setOnClickListener(this);
-    primaryActionButtonView.setOnLongClickListener(this);
     primaryActionView.setOnClickListener(this.expandCollapseListener);
     if (this.voicemailPlaybackPresenter != null
         && ConfigProviderComponent.get(this.context)
@@ -529,7 +522,6 @@ public final class CallLogListItemViewHolder extends RecyclerView.ViewHolder
         primaryActionButtonView.setContentDescription(
             TextUtils.expandTemplate(
                 context.getString(R.string.description_voicemail_action), validNameOrNumber));
-        primaryActionButtonView.setTag(null);
         primaryActionButtonView.setVisibility(View.VISIBLE);
       } else {
         primaryActionButtonView.setVisibility(View.GONE);
@@ -1082,8 +1074,7 @@ public final class CallLogListItemViewHolder extends RecyclerView.ViewHolder
       return;
     }
     intentProvider.logInteraction(context);
-
-    final Intent intent = intentProvider.getClickIntent(context);
+    final Intent intent = intentProvider.getIntent(context);
     // See IntentProvider.getCallDetailIntentProvider() for why this may be null.
     if (intent == null) {
       return;
@@ -1093,38 +1084,14 @@ public final class CallLogListItemViewHolder extends RecyclerView.ViewHolder
       ((Activity) context)
           .startActivityForResult(intent, ActivityRequestCodes.DIALTACTS_CALL_DETAILS);
     } else {
-      CallIntentBuilder callIntentBuilder = intent.getParcelableExtra(PreCallCoordinator.EXTRA_CALL_INTENT_BUILDER);
       if (Intent.ACTION_CALL.equals(intent.getAction())
           && intent.getIntExtra(TelecomManager.EXTRA_START_CALL_WITH_VIDEO_STATE, -1)
               == VideoProfile.STATE_BIDIRECTIONAL) {
         Logger.get(context).logImpression(DialerImpression.Type.IMS_VIDEO_REQUESTED_FROM_CALL_LOG);
       }
-      // hijack call to show chooser dialog (hopefully only for regular call backs)
-      else if (SpecialCallingAccounts.showDialog(intent, callIntentBuilder)) {
-        Intent phoneIntent;
-        if (callIntentBuilder != null) phoneIntent = callIntentBuilder.build();
-        else phoneIntent = intent;
-        FragmentManager fragmentManager = ((Activity) context).getFragmentManager();
-        SelectAccountDialogFragment
-            .newInstance(phoneIntent, info.normalizedNumber, info.signalId, info.whatsAppId)
-            .show(fragmentManager, "SELECT_ACCOUNT");
-        return;  // do not start activity below
-      }
 
       DialerUtils.startActivityWithErrorToast(context, intent);
     }
-  }
-
-  @Override
-  public boolean onLongClick(View view) {
-    final IntentProvider intentProvider = (IntentProvider) view.getTag();
-    final Intent intent = intentProvider != null
-        ? intentProvider.getLongClickIntent(context) : null;
-    if (intent != null) {
-      DialerUtils.startActivityWithErrorToast(context, intent);
-      return true;
-    }
-    return false;
   }
 
   private static boolean isNonContactEntry(ContactInfo info) {

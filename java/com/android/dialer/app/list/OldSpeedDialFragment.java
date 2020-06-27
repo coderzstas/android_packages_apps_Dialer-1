@@ -415,9 +415,9 @@ public class OldSpeedDialFragment extends Fragment
     }
 
     @Override
-    public void onCallNumberDirectly(String phoneNumber, CallSpecificAppData callSpecificAppData, String lookupKey) {
+    public void onCallNumberDirectly(String phoneNumber, CallSpecificAppData callSpecificAppData) {
       FragmentUtils.getParentUnsafe(fragment, OnPhoneNumberPickerActionListener.class)
-          .onPickPhoneNumber(phoneNumber, false /* isVideoCall */, callSpecificAppData, lookupKey);
+          .onPickPhoneNumber(phoneNumber, false /* isVideoCall */, callSpecificAppData);
     }
   }
 

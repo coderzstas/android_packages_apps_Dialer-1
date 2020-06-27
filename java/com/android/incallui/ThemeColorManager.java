@@ -17,10 +17,8 @@
 package com.android.incallui;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.support.annotation.ColorInt;
 import android.support.annotation.Nullable;
-import android.support.v4.graphics.ColorUtils;
 import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
 import android.telecom.TelecomManager;
@@ -36,10 +34,6 @@ public class ThemeColorManager {
   private final MaterialColorMapUtils colorMap;
   @ColorInt private int primaryColor;
   @ColorInt private int secondaryColor;
-  @ColorInt private int backgroundColorTop;
-  @ColorInt private int backgroundColorMiddle;
-  @ColorInt private int backgroundColorBottom;
-  @ColorInt private int backgroundColorSolid;
 
   /**
    * If there is no actual call currently in the call list, this will be used as a fallback to
@@ -57,31 +51,25 @@ public class ThemeColorManager {
 
   public void onForegroundCallChanged(Context context, @Nullable DialerCall newForegroundCall) {
     if (newForegroundCall == null) {
-      updateThemeColors(context, getHighlightColor(context, pendingPhoneAccountHandle), false);
+      updateThemeColors(getHighlightColor(context, pendingPhoneAccountHandle), false);
     } else {
       updateThemeColors(
-          context,
           getHighlightColor(context, newForegroundCall.getAccountHandle()),
           newForegroundCall.isSpam());
     }
   }
 
-  private void updateThemeColors(Context context, @ColorInt int highlightColor, boolean isSpam) {
-      int accentColor = context.getResources().getColor(R.color.incall_background_accent_color);
+  private void updateThemeColors(@ColorInt int highlightColor, boolean isSpam) {
+    MaterialPalette palette;
+    if (isSpam) {
+      palette =
+          colorMap.calculatePrimaryAndSecondaryColor(R.color.incall_call_spam_background_color);
+    } else {
+      palette = colorMap.calculatePrimaryAndSecondaryColor(highlightColor);
+    }
 
-      MaterialPalette palette;
-
-      if (isSpam) {
-          palette = colorMap.calculatePrimaryAndSecondaryColor(R.color.incall_call_spam_background_color);
-          backgroundColorTop = context.getColor(R.color.incall_background_gradient_spam_top);
-          backgroundColorMiddle = context.getColor(R.color.incall_background_gradient_spam_middle);
-          backgroundColorBottom = context.getColor(R.color.incall_background_gradient_spam_bottom);
-          backgroundColorSolid = context.getColor(R.color.incall_background_multiwindow_spam);
-      } else
-          backgroundColorTop = getColorWithAlpha(accentColor, 1.0f);
-          backgroundColorMiddle = getColorWithAlpha(accentColor, 0.9f);
-          backgroundColorBottom = getColorWithAlpha(accentColor, 0.7f);
-          backgroundColorSolid = getColorWithAlpha(accentColor, 1.0f);
+    primaryColor = palette.mPrimaryColor;
+    secondaryColor = palette.mSecondaryColor;
   }
 
   @ColorInt
@@ -103,40 +91,5 @@ public class ThemeColorManager {
   @ColorInt
   public int getSecondaryColor() {
     return secondaryColor;
-  }
-
-  @ColorInt
-  public int getBackgroundColorTop() {
-    return backgroundColorTop;
-  }
-
-  @ColorInt
-  public int getBackgroundColorMiddle() {
-    return backgroundColorMiddle;
-  }
-
-  @ColorInt
-  public int getBackgroundColorBottom() {
-    return backgroundColorBottom;
-  }
-
-  @ColorInt
-  public int getBackgroundColorSolid() {
-    return backgroundColorSolid;
-  }
-
-  @ColorInt
-  private static int applyAlpha(@ColorInt int color, @ColorInt int sourceColorWithAlpha) {
-    return ColorUtils.setAlphaComponent(color, Color.alpha(sourceColorWithAlpha));
-  }
-  // Set an alpha for colors
-  private static int getColorWithAlpha(int color, float ratio) {
-      int newColor = 0;
-      int alpha = Math.round(Color.alpha(color) * ratio);
-      int r = Color.red(color);
-      int g = Color.green(color);
-      int b = Color.blue(color);
-      newColor = Color.argb(alpha, r, g, b);
-      return newColor;
   }
 }

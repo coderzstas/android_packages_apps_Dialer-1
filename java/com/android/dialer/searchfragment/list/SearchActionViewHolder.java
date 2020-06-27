@@ -72,7 +72,6 @@ final class SearchActionViewHolder extends RecyclerView.ViewHolder implements On
   private @Action int action;
   private int position;
   private String query;
-  private String lookupKey;
 
   SearchActionViewHolder(View view, RowClickListener listener) {
     super(view);
@@ -146,7 +145,7 @@ final class SearchActionViewHolder extends RecyclerView.ViewHolder implements On
         break;
 
       case Action.MAKE_VOICE_CALL:
-        listener.placeVoiceCall(query, null, position);
+        listener.placeVoiceCall(query, position);
         break;
 
       case Action.INVALID:
