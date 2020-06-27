@@ -290,7 +290,7 @@ public class CallTypeIconsView extends View {
       int iconId = R.drawable.quantum_ic_call_received_white_24;
       Drawable drawable = largeIcons ? r.getDrawable(iconId) : getScaledBitmap(context, iconId);
       incoming = drawable.mutate();
-      incoming.setColorFilter(r.getColor(R.color.dialer_call_green), PorterDuff.Mode.SRC_IN);
+      incoming.setColorFilter(r.getColor(R.color.answered_incoming_call), PorterDuff.Mode.SRC_IN);
 
       // Create a rotated instance of the call arrow for outgoing calls.
       iconId = R.drawable.quantum_ic_call_made_white_24;
